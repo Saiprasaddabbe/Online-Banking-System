@@ -2,15 +2,16 @@ package com.usecases;
 
 import java.util.Scanner;
 
+import com.bean.Customer;
 import com.dao.CustomerDao;
 import com.dao.CustomerDaoImpl;
 
-public class RegisterCustomerUseCase1 {
-	
+public class RegisterCustomerUseCase2 {
+
 	public static void main(String[] args) {
-		
+
 		Scanner sc = new Scanner(System.in);
-		
+
 		System.out.println("Enter username...");
 		String username = sc.nextLine();
 
@@ -19,15 +20,19 @@ public class RegisterCustomerUseCase1 {
 
 		System.out.println("Enter Password...");
 		String password = sc.nextLine();
-		
+
+		Customer customer = new Customer();
+
+		customer.setUsername(username);
+		customer.setMobile(mobile);
+		customer.setPassword(password);
+
 		CustomerDao cdao = new CustomerDaoImpl();
-		String message = cdao.registerCustomer(username, password, mobile);
-		
+
+		String message = cdao.registerCustomer(customer);
+
 		System.out.println(message);
-		
-		
-		
-		
+
 	}
 
 }

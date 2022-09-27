@@ -2,8 +2,8 @@ package com.utility;
 
 import java.sql.Connection;
 
-import com.dao.CustomersDao;
-import com.dao.CustomersDaoImpl;
+import com.dao.CustomerDao;
+import com.dao.CustomerDaoImpl;
 
 
 public class Demo {
