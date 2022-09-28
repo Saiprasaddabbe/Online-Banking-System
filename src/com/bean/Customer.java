@@ -8,29 +8,37 @@ public class Customer {
 	private String mobile;
 	private String accNo;
 	private String password;
-	
+
 	public Customer() {
 		// Generating 12 digit account number
 		Random rnd = new Random();
 		int number = rnd.nextInt(999999999);
 		String accN = String.format("%9d", number);
 		accN = accN + "000";
-		
-		this.accNo=accN;
+
+		this.accNo = accN;
 	}
-	
+
 	public Customer(String username, String mobile, String password) {
 		super();
 		this.username = username;
 		this.mobile = mobile;
 		this.password = password;
 		// Generating 12 digit account number
-				Random rnd = new Random();
-				int number = rnd.nextInt(999999999);
-				String accN = String.format("%9d", number);
-				accN = accN + "000";
-				
-				this.accNo=accN;
+		Random rnd = new Random();
+		int number = rnd.nextInt(999999999);
+		String accN = String.format("%9d", number);
+		accN = accN + "000";
+
+		this.accNo = accN;
+	}
+
+	public Customer(String a, String u, String m, String p) {
+		super();
+		this.username = u;
+		this.mobile = m;
+		this.password = p;
+		this.accNo = a;
 	}
 
 	public String getUsername() {
@@ -64,17 +72,11 @@ public class Customer {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
 
 	@Override
 	public String toString() {
 		return "Customer [username=" + username + ", mobile=" + mobile + ", accNo=" + accNo + ", password=" + password
 				+ "]";
 	}
-	
-	
-	
-	
-	
-	
+
 }
