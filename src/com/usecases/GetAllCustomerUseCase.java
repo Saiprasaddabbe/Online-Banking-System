@@ -10,7 +10,7 @@ import com.exceptions.CustomerException;
 
 public class GetAllCustomerUseCase {
 
-	public static void main(String[] args) {
+	public static void main1() {
 
 		CustomerDao cdao = new CustomerDaoImpl();
 		try {
@@ -23,5 +23,7 @@ public class GetAllCustomerUseCase {
 		}
 
 	}
+
+
 
 }

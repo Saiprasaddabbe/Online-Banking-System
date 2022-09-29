@@ -8,7 +8,7 @@ import com.dao.CustomerDaoImpl;
 
 public class RegisterCustomerUseCase2 {
 
-	public static void main(String[] args) {
+	public static void main1() {
 
 		Scanner sc = new Scanner(System.in);
 
