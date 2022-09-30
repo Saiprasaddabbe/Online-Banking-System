@@ -8,6 +8,7 @@ public class Customer {
 	private String mobile;
 	private String accNo;
 	private String password;
+	private int balance;
 
 	public Customer() {
 		// Generating 12 digit account number
@@ -72,11 +73,20 @@ public class Customer {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	public int getBalance() {
+		return balance;
+	}
+
+	public void setBalance(int balance) {
+		this.balance = balance;
+	}
 
 	@Override
 	public String toString() {
 		return "Customer [username=" + username + ", mobile=" + mobile + ", accNo=" + accNo + ", password=" + password
-				+ "]";
+				+ ", balance=" + balance + "]";
 	}
+
+	
 
 }

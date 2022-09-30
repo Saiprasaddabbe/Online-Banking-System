@@ -13,25 +13,30 @@ public class RegisterCustomerUseCase2 {
 		Scanner sc = new Scanner(System.in);
 
 		System.out.println("Enter username...");
-		String username = sc.nextLine();
+		String username = sc.next();
 
 		System.out.println("Enter Mobile Number...");
-		String mobile = sc.nextLine();
+		String mobile = sc.next();
 
 		System.out.println("Enter Password...");
-		String password = sc.nextLine();
+		String password = sc.next();
+
+		System.out.println("Enter Minimum balance to open account 10rs...");
+		int balance = sc.nextInt();
 
 		Customer customer = new Customer();
 
 		customer.setUsername(username);
 		customer.setMobile(mobile);
 		customer.setPassword(password);
-
+        customer.setBalance(balance);
+        
 		CustomerDao cdao = new CustomerDaoImpl();
 
 		String message = cdao.registerCustomer(customer);
 
 		System.out.println(message);
+		System.out.println("Your account no is :"+customer.getAccNo());
 
 	}
 

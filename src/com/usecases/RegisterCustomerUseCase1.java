@@ -20,8 +20,11 @@ public class RegisterCustomerUseCase1 {
 		System.out.println("Enter Password...");
 		String password = sc.nextLine();
 		
+		System.out.println("Enter minimum balance to open account 10rs...");
+		int Balance = sc.nextInt();
+		
 		CustomerDao cdao = new CustomerDaoImpl();
-		String message = cdao.registerCustomer(username, password, mobile);
+		String message = cdao.registerCustomer(username, password, mobile,Balance);
 		
 		System.out.println(message);
 		
