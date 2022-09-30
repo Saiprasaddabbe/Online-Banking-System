@@ -26,6 +26,8 @@ The objective of this project is to maintain the accounts like saving account, w
 This repositoty is fully Open Source, Feel free to clone this, yes you heard it right - you can fork this repo. Before that please give me a star, fork it and customize as per your wish. If you face any dificulty you can connect with me mail.dabbesaiprasad8@gmail.com.</br>
 • This App Will use MySQL for storing Data</br>
 • For that You must to create 3 tables in your local machine to make this App works this are follows:-</br>
+![alt text](Tables.png)</br>
+
 • If you want to use Accountant feacture the you must have to innsert Accountant information manually in MySQL to make this App work (Basically You have to hardcore Accountants details)</br>
 
 
