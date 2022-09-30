@@ -10,8 +10,10 @@ import java.util.Random;
 import java.util.Scanner;
 
 import com.bean.Customer;
+import com.bean.Transactions;
 import com.exceptions.AccountantException;
 import com.exceptions.CustomerException;
+import com.mysql.cj.exceptions.UnsupportedConnectionStringException;
 import com.usecases.GetAllCustomerUseCase;
 import com.usecases.RegisterCustomerUseCase1;
 import com.utility.DBUtil;
@@ -45,7 +47,7 @@ public class CustomerDaoImpl implements CustomerDao {
 	}
 
 	@Override
-	public String registerCustomer(String username, String password, String mobile,int balance) {
+	public String registerCustomer(String username, String password, String mobile, int balance) {
 		// Generating 12 digit account number
 		Random rnd = new Random();
 		int number = rnd.nextInt(999999999);
@@ -200,7 +202,9 @@ public class CustomerDaoImpl implements CustomerDao {
 				System.out.println("2.Edit already available account");
 				System.out.println("3.Remove account by using account number");
 				System.out.println("4.View account details by account number");
-				System.out.println("5.View all accounts details");
+				System.out.println("5.View transaction history by account number");
+				System.out.println("6.View all accounts details");
+				System.out.println("7.View all Transactions History");
 
 				Scanner sc = new Scanner(System.in);
 				int choice = sc.nextInt();
@@ -229,7 +233,9 @@ public class CustomerDaoImpl implements CustomerDao {
 						System.out.println(ce.getMessage());
 					}
 					break;
+					
 				case 4:
+					
 					System.out.println("Enter Account number to view cutomer details");
 					String accno1 = sc.next();
 					try {
@@ -240,12 +246,24 @@ public class CustomerDaoImpl implements CustomerDao {
 					}
 					break;
 				case 5:
-
+					System.out.println("Enter account number to check transaction history:");
+					String accountno  =sc.next();
+					checkTransactionHistory(accountno);
+					break;
+				case 6:
 					GetAllCustomerUseCase.main1();
+					break;
+				case 7:
+					try {
+						showAllTransactions();
 
+					} catch (CustomerException ce) {
+
+						System.out.println(ce.getMessage());
+					}
 					break;
 				default:
-					System.out.println("Invalid entry please choose from 1 to 5");
+					System.out.println("Invalid entry please choose from 1 to 7");
 				}
 
 			} else {
@@ -353,7 +371,6 @@ public class CustomerDaoImpl implements CustomerDao {
 
 				String u = rs.getString("username");
 				String accno = rs.getString("accno");
-				
 
 				System.out.println("Customer logged in Successfully\n Welcome, " + u + "\n Select below Options:");
 				System.out.println("1.Deposite");
@@ -368,22 +385,22 @@ public class CustomerDaoImpl implements CustomerDao {
 				case 1:
 					System.out.println("Enter amount to deposit:");
 					int amount = sc.nextInt();
-					depositeMoney(amount,  accno);
+					depositeMoney(amount, accno);
 					break;
 				case 2:
 					System.out.println("Enter amount to withdraw:");
 					int amount1 = sc.nextInt();
-					withdrawMoney(amount1 ,accno);
+					withdrawMoney(amount1, accno);
 					break;
 				case 3:
 					System.out.println("Enter Receiver's account Number:");
 					String raccno = sc.next();
 					System.out.println("Enter Amount to transfer:");
 					int a = sc.nextInt();
-					transferMoney(a,accno,raccno);
+					transferMoney(a, accno, raccno);
 					break;
 				case 4:
-					System.out.println("comming soon");
+					checkTransactionHistory(accno);
 					break;
 				default:
 					System.out.println("Invalid entry please choose option 1 or 2");
@@ -407,6 +424,7 @@ public class CustomerDaoImpl implements CustomerDao {
 		try (Connection conn = DBUtil.provideConnection()) {
 
 			PreparedStatement ps = conn.prepareStatement("update customers set balance=balance+? where accno=?");
+
 			ps.setInt(1, amount);
 			ps.setString(2, accno);
 
@@ -416,6 +434,18 @@ public class CustomerDaoImpl implements CustomerDao {
 			} else {
 				System.out.println(amount + " Not deposited");
 			}
+
+			Customer customer = getCustomerByAcc(accno);
+			int balance = customer.getBalance();
+
+			PreparedStatement ps1 = conn
+					.prepareStatement("insert into transactions(accno,credit,available_balance) values(?,?,?)");
+
+			ps1.setString(1, accno);
+			ps1.setInt(2, amount);
+			ps1.setInt(3, balance);
+
+			ps1.executeUpdate();//
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -429,88 +459,177 @@ public class CustomerDaoImpl implements CustomerDao {
 
 		try (Connection conn = DBUtil.provideConnection()) {
 
-		Customer customer=getCustomerByAcc(accno);
-		
-		int balance = customer.getBalance();
-		
-		if(balance>amount || balance==amount) {
-			balance=balance-amount;
-			customer.setBalance(balance);
-			
-		PreparedStatement ps =conn.prepareStatement("update customers set balance = ? where accno=?");
-			 ps.setInt(1, balance);
-			 ps.setString(2, accno);
-			 
-			 int x = ps.executeUpdate();
-			 if(x>0) {
-				 System.out.println(amount+"Rs Withdrawal successfull");
-			 }else {
-				 System.out.println(amount+"Rs Withdrawal fail");
-			 }
+			Customer customer = getCustomerByAcc(accno);
 
-		}else {
-			System.out.println("No sufficient balance to withdraw");
-			System.out.println("Your balance is :"+ balance);
-		}
-		
+			int balance = customer.getBalance();
+
+			if (balance > amount || balance == amount) {
+				balance = balance - amount;
+				customer.setBalance(balance);
+
+				PreparedStatement ps = conn.prepareStatement("update customers set balance = ? where accno=?");
+				ps.setInt(1, balance);
+				ps.setString(2, accno);
+
+				int x = ps.executeUpdate();
+				if (x > 0) {
+					System.out.println(amount + "Rs Withdrawal successfull");
+				} else {
+					System.out.println(amount + "Rs Withdrawal fail");
+				}
+
+				customer = getCustomerByAcc(accno);
+				balance = customer.getBalance();
+
+				PreparedStatement ps1 = conn
+						.prepareStatement("insert into transactions(accno,debit,available_balance) values(?,?,?)");
+
+				ps1.setString(1, accno);
+				ps1.setInt(2, amount);
+				ps1.setInt(3, balance);
+
+				ps1.executeUpdate();
+
+			} else {
+				System.out.println("No sufficient balance to withdraw");
+				System.out.println("Your balance is :" + balance);
+			}
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 
 		}
-		
+
 	}
 
 	@Override
-	public void transferMoney(int amount, String accno ,String raccno) throws CustomerException {
+	public void transferMoney(int amount, String accno, String raccno) throws CustomerException {
 
 		try (Connection conn = DBUtil.provideConnection()) {
 
-			Customer rcustomer=getCustomerByAcc(raccno);
-			Customer acustomer=getCustomerByAcc(accno);
-			
+			Customer rcustomer = getCustomerByAcc(raccno);
+			Customer acustomer = getCustomerByAcc(accno);
+
 			int abalance = acustomer.getBalance();
 			int rbalance = rcustomer.getBalance();
-			
-			if(abalance>amount || abalance==amount) {
-				abalance=abalance-amount;
-				rbalance=rbalance+amount;
+
+			if (abalance > amount || abalance == amount) {
+				abalance = abalance - amount;
+				rbalance = rbalance + amount;
 				rcustomer.setBalance(rbalance);
-				
-			PreparedStatement aps =conn.prepareStatement("update customers set balance = ? where accno=?");
-			PreparedStatement rps =conn.prepareStatement("update customers set balance = ? where accno=?");
-				 aps.setInt(1, abalance);
-				 aps.setString(2, accno);
-				 rps.setInt(1, rbalance);
-				 rps.setString(2, raccno);
-				 
-				 int x = aps.executeUpdate();
-				 int y = rps.executeUpdate();
-				 if(x>0 && y>0) {
-					 System.out.println(amount+"Rs debited from your account");
-					 System.out.println("and credited to "+" "+raccno+" "+" account");
-					 System.out.println("Available Balance in your acc is "+abalance);
-				 }else {
-					 System.out.println(amount+"Rs Withdrawal fail");
-				 }
-				 
 
-			}else {
+				PreparedStatement aps = conn.prepareStatement("update customers set balance = ? where accno=?");
+				PreparedStatement rps = conn.prepareStatement("update customers set balance = ? where accno=?");
+				aps.setInt(1, abalance);
+				aps.setString(2, accno);
+				rps.setInt(1, rbalance);
+				rps.setString(2, raccno);
+
+				int x = aps.executeUpdate();
+				int y = rps.executeUpdate();
+				if (x > 0 && y > 0) {
+					System.out.println(amount + "Rs debited from your account");
+					System.out.println("and credited to " + " " + raccno + " " + " account");
+					System.out.println("Available Balance in your acc is " + abalance);
+				} else {
+					System.out.println(amount + "Rs Withdrawal fail");
+				}
+
+			} else {
 				System.out.println("No sufficient balance to transfer");
-				System.out.println("Your balance is :"+ abalance);
+				System.out.println("Your balance is :" + abalance);
 			}
-			
 
-			} catch (SQLException e) {
-				System.out.println(e.getMessage());
+			Customer customer = getCustomerByAcc(accno);
+			abalance = customer.getBalance();
 
-			}
-		
-		
-		
-		
+			PreparedStatement aps1 = conn
+					.prepareStatement("insert into transactions(accno,debit,available_balance) values(?,?,?)");
+
+			aps1.setString(1, accno);
+			aps1.setInt(2, amount);
+			aps1.setInt(3, abalance);
+
+			aps1.executeUpdate();
+
+			customer = getCustomerByAcc(raccno);
+			rbalance = customer.getBalance();
+			PreparedStatement rps1 = conn
+					.prepareStatement("insert into transactions(accno,credit,available_balance) values(?,?,?)");
+
+			rps1.setString(1, raccno);
+			rps1.setInt(2, amount);
+			rps1.setInt(3, rbalance);
+
+			rps1.executeUpdate();
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+
+		}
+
 	}
 
-	
+	@Override
+	public void showAllTransactions() throws CustomerException {
+		List<Transactions> transactions = new ArrayList<>();
+
+		try (Connection conn = DBUtil.provideConnection()) {
+			PreparedStatement ps = conn.prepareStatement("select * from transactions");
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				String a = rs.getString("accno");
+				int d = rs.getInt("debit");
+				int c = rs.getInt("credit");
+				int ab = rs.getInt("available_balance");
+
+				Transactions t = new Transactions(a, d, c, ab);
+				transactions.add(t);
+
+			}
+
+			if (transactions.size() == 0) {
+				System.out.println("No transactions available");
+			} else {
+				transactions.forEach(t -> System.out.println(t));
+			}
+
+		} catch (SQLException se) {
+			System.out.println(se.getMessage());
+		}
+	}
+
+	@Override
+	public void checkTransactionHistory(String accno) {
+		List<Transactions> transactions = new ArrayList<>();
+
+		try (Connection conn = DBUtil.provideConnection()) {
+			PreparedStatement ps = conn.prepareStatement("select * from transactions where accno=?");
+			ps.setString(1, accno);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+
+				String a = rs.getString("accno");
+				int d = rs.getInt("debit");
+				int c = rs.getInt("credit");
+				int avl_bal = rs.getInt("available_balance");
+
+				Transactions t = new Transactions(a, d, c, avl_bal);
+
+				transactions.add(t);
+			}
+			
+			if(transactions.size()==0) {
+				System.out.println("No any transaction done");
+			}else {
+				transactions.forEach(t->System.out.println(t));
+			}
+			
+
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
 
 }

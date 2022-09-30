@@ -20,7 +20,8 @@ public interface CustomerDao {
 	public void depositeMoney(int amount,String accno)throws CustomerException;
 	public void withdrawMoney(int amount,String accno)throws CustomerException;
 	public void transferMoney(int amount,String accno,String racco)throws CustomerException;
-	
+	public void showAllTransactions()throws CustomerException;
+	public void checkTransactionHistory(String accno);
 
 	
 
