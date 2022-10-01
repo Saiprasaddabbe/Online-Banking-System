@@ -17,17 +17,23 @@ public class RegisterCustomerUseCase1 {
 		System.out.println("Enter Mobile Number...");
 		String mobile = sc.nextLine();
 
-		System.out.println("Enter Password...");
+		System.out.println("Enter Strong Password");
 		String password = sc.nextLine();
-		
-		System.out.println("Enter minimum balance to open account 10rs...");
-		int Balance = sc.nextInt();
-		
-		CustomerDao cdao = new CustomerDaoImpl();
-		String message = cdao.registerCustomer(username, password, mobile,Balance);
-		
-		System.out.println(message);
-		
+		boolean flag=true;
+		while(flag) {
+			
+			System.out.println("Enter minimum balance to open account 10rs...");
+			int Balance = sc.nextInt();
+			if(Balance>=10) {
+				
+				CustomerDao cdao = new CustomerDaoImpl();
+				String message = cdao.registerCustomer(username, password, mobile,Balance);
+				
+				System.out.println(message);
+				flag=false;
+				
+			}
+		}
 		
 		
 		

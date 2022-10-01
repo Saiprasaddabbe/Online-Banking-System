@@ -21,22 +21,30 @@ public class RegisterCustomerUseCase2 {
 		System.out.println("Enter Password...");
 		String password = sc.next();
 
-		System.out.println("Enter Minimum balance to open account 10rs...");
-		int balance = sc.nextInt();
+		boolean flag = true;
+		while (flag) {
 
-		Customer customer = new Customer();
+			System.out.println("Enter Minimum balance to open account 10rs...");
 
-		customer.setUsername(username);
-		customer.setMobile(mobile);
-		customer.setPassword(password);
-        customer.setBalance(balance);
-        
-		CustomerDao cdao = new CustomerDaoImpl();
+			int balance = sc.nextInt();
+			if (balance >= 10) {
+				flag=false;
 
-		String message = cdao.registerCustomer(customer);
+				Customer customer = new Customer();
 
-		System.out.println(message);
-		System.out.println("Your account no is :"+customer.getAccNo());
+				customer.setUsername(username);
+				customer.setMobile(mobile);
+				customer.setPassword(password);
+				customer.setBalance(balance);
+
+				CustomerDao cdao = new CustomerDaoImpl();
+
+				String message = cdao.registerCustomer(customer);
+
+				System.out.println(message);
+				System.out.println("Your account no is :" + customer.getAccNo());
+			}
+		}
 
 	}
 

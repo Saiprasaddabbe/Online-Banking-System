@@ -182,100 +182,107 @@ public class CustomerDaoImpl implements CustomerDao {
 	@Override
 	public void loginAccountant(String username, String password) throws AccountantException {
 		String message = "Invalid username of password";
+		boolean flag = true;
+		while (flag) {
 
-		try (Connection conn = DBUtil.provideConnection()) {
+			try (Connection conn = DBUtil.provideConnection()) {
 
-			PreparedStatement ps = conn
-					.prepareStatement("select * from accountants where username = ? AND password = ?");
+				PreparedStatement ps = conn
+						.prepareStatement("select * from accountants where username = ? AND password = ?");
 
-			ps.setString(1, username);
-			ps.setString(2, password);
+				ps.setString(1, username);
+				ps.setString(2, password);
 
-			ResultSet rs = ps.executeQuery();
+				ResultSet rs = ps.executeQuery();
 
-			if (rs.next()) {
+				if (rs.next()) {
 
-				String u = rs.getString("username");
+					String u = rs.getString("username");
 
-				System.out.println("Accountant logged in Successfully\n Welcome, " + u + "\n Select below Options:");
-				System.out.println("1.Add new account for customer");
-				System.out.println("2.Edit already available account");
-				System.out.println("3.Remove account by using account number");
-				System.out.println("4.View account details by account number");
-				System.out.println("5.View transaction history by account number");
-				System.out.println("6.View all accounts details");
-				System.out.println("7.View all Transactions History");
+					System.out
+							.println("Accountant logged in Successfully\n Welcome, " + u + "\n Select below Options:");
+					System.out.println("1.Add new account for customer");
+					System.out.println("2.Edit already available account");
+					System.out.println("3.Remove account by using account number");
+					System.out.println("4.View account details by account number");
+					System.out.println("5.View transaction history by account number");
+					System.out.println("6.View all accounts details");
+					System.out.println("7.View all Transactions History");
+					System.out.println("8.Previous Menu");
 
-				Scanner sc = new Scanner(System.in);
-				int choice = sc.nextInt();
+					Scanner sc = new Scanner(System.in);
+					int choice = sc.nextInt();
 
-				switch (choice) {
-				case 1:
-					RegisterCustomerUseCase1.main1();
-					break;
-				case 2:
-					System.out.println("Enter Account number to update details:");
-					String accno = sc.next();
-					try {
-						updateCustomersDetails(accno);
-					} catch (CustomerException ce) {
+					switch (choice) {
+					case 1:
+						RegisterCustomerUseCase1.main1();
+						break;
+					case 2:
+						System.out.println("Enter Account number to update details:");
+						String accno = sc.next();
+						try {
+							updateCustomersDetails(accno);
+						} catch (CustomerException ce) {
 
-						System.out.println(ce.getMessage());
+							System.out.println(ce.getMessage());
+						}
+						break;
+					case 3:
+						System.out.println("Enter Account number to remove:");
+						String acno = sc.next();
+						try {
+							removeCustomerAccount(acno);
+						} catch (CustomerException ce) {
+							// TODO Auto-generated catch block
+							System.out.println(ce.getMessage());
+						}
+						break;
+
+					case 4:
+
+						System.out.println("Enter Account number to view cutomer details");
+						String accno1 = sc.next();
+						try {
+							Customer customer = getCustomerByAcc(accno1);
+							System.out.println(customer);
+						} catch (CustomerException ce) {
+							System.out.println(ce.getMessage());
+						}
+						break;
+					case 5:
+						System.out.println("Enter account number to check transaction history:");
+						String accountno = sc.next();
+						checkTransactionHistory(accountno);
+						break;
+					case 6:
+						GetAllCustomerUseCase.main1();
+						break;
+					case 7:
+						try {
+							showAllTransactions();
+
+						} catch (CustomerException ce) {
+
+							System.out.println(ce.getMessage());
+						}
+						break;
+					case 8:
+						flag = false;
+						break;
+					default:
+						System.out.println("Invalid entry please choose from 1 to 8");
 					}
-					break;
-				case 3:
-					System.out.println("Enter Account number to remove:");
-					String acno = sc.next();
-					try {
-						removeCustomerAccount(acno);
-					} catch (CustomerException ce) {
-						// TODO Auto-generated catch block
-						System.out.println(ce.getMessage());
-					}
-					break;
-					
-				case 4:
-					
-					System.out.println("Enter Account number to view cutomer details");
-					String accno1 = sc.next();
-					try {
-						Customer customer = getCustomerByAcc(accno1);
-						System.out.println(customer);
-					} catch (CustomerException ce) {
-						System.out.println(ce.getMessage());
-					}
-					break;
-				case 5:
-					System.out.println("Enter account number to check transaction history:");
-					String accountno  =sc.next();
-					checkTransactionHistory(accountno);
-					break;
-				case 6:
-					GetAllCustomerUseCase.main1();
-					break;
-				case 7:
-					try {
-						showAllTransactions();
 
-					} catch (CustomerException ce) {
+				} else {
 
-						System.out.println(ce.getMessage());
-					}
-					break;
-				default:
-					System.out.println("Invalid entry please choose from 1 to 7");
+					throw new AccountantException("Invalid username or password");
+
 				}
 
-			} else {
-
-				throw new AccountantException("Invalid username or password");
-
+			} catch (SQLException se) {
+				throw new AccountantException(se.getMessage());
 			}
-
-		} catch (SQLException se) {
-			throw new AccountantException(se.getMessage());
 		}
-
 	}
 
 	@Override
@@ -357,63 +364,70 @@ public class CustomerDaoImpl implements CustomerDao {
 	@Override
 	public void loginCustomer1(String username, String password) throws CustomerException {
 		String message = "Invalid username of password";
+		boolean flag = true;
+		while (flag) {
+			try (Connection conn = DBUtil.provideConnection()) {
 
-		try (Connection conn = DBUtil.provideConnection()) {
+				PreparedStatement ps = conn
+						.prepareStatement("select * from customers where username = ? AND password = ?");
 
-			PreparedStatement ps = conn.prepareStatement("select * from customers where username = ? AND password = ?");
+				ps.setString(1, username);
+				ps.setString(2, password);
 
-			ps.setString(1, username);
-			ps.setString(2, password);
+				ResultSet rs = ps.executeQuery();
 
-			ResultSet rs = ps.executeQuery();
+				if (rs.next()) {
 
-			if (rs.next()) {
+					String u = rs.getString("username");
+					String accno = rs.getString("accno");
 
-				String u = rs.getString("username");
-				String accno = rs.getString("accno");
+					System.out.println("Customer logged in Successfully\n Welcome, " + u + "\n Select below Options:");
+					System.out.println("1.Deposite");
+					System.out.println("2.Withdraw");
+					System.out.println("3.Transfer");
+					System.out.println("4.Check Transaction History");
+					System.out.println("5.Previous Menu");
 
-				System.out.println("Customer logged in Successfully\n Welcome, " + u + "\n Select below Options:");
-				System.out.println("1.Deposite");
-				System.out.println("2.Withdraw");
-				System.out.println("3.Transfer");
-				System.out.println("4.Check Transaction History");
+					Scanner sc = new Scanner(System.in);
+					int choice = sc.nextInt();
 
-				Scanner sc = new Scanner(System.in);
-				int choice = sc.nextInt();
+					switch (choice) {
+					case 1:
+						System.out.println("Enter amount to deposit:");
+						int amount = sc.nextInt();
+						depositeMoney(amount, accno);
+						break;
+					case 2:
+						System.out.println("Enter amount to withdraw:");
+						int amount1 = sc.nextInt();
+						withdrawMoney(amount1, accno);
+						break;
+					case 3:
+						System.out.println("Enter Receiver's account Number:");
+						String raccno = sc.next();
+						System.out.println("Enter Amount to transfer:");
+						int a = sc.nextInt();
+						transferMoney(a, accno, raccno);
+						break;
+					case 4:
+						checkTransactionHistory(accno);
+						break;
+					case 5:
+						flag = false;
+						break;
+					default:
+						System.out.println("Invalid entry please choose option 1 or 5");
+					}
 
-				switch (choice) {
-				case 1:
-					System.out.println("Enter amount to deposit:");
-					int amount = sc.nextInt();
-					depositeMoney(amount, accno);
-					break;
-				case 2:
-					System.out.println("Enter amount to withdraw:");
-					int amount1 = sc.nextInt();
-					withdrawMoney(amount1, accno);
-					break;
-				case 3:
-					System.out.println("Enter Receiver's account Number:");
-					String raccno = sc.next();
-					System.out.println("Enter Amount to transfer:");
-					int a = sc.nextInt();
-					transferMoney(a, accno, raccno);
-					break;
-				case 4:
-					checkTransactionHistory(accno);
-					break;
-				default:
-					System.out.println("Invalid entry please choose option 1 or 2");
+				} else {
+
+					throw new CustomerException("Invalid username or password");
+
 				}
 
-			} else {
-
-				throw new CustomerException("Invalid username or password");
-
+			} catch (SQLException ce) {
+				throw new CustomerException(ce.getMessage());
 			}
-
-		} catch (SQLException ce) {
-			throw new CustomerException(ce.getMessage());
 		}
 
 	}
@@ -619,16 +633,15 @@ public class CustomerDaoImpl implements CustomerDao {
 
 				transactions.add(t);
 			}
-			
-			if(transactions.size()==0) {
+
+			if (transactions.size() == 0) {
 				System.out.println("No any transaction done");
-			}else {
-				transactions.forEach(t->System.out.println(t));
+			} else {
+				transactions.forEach(t -> System.out.println(t));
 			}
-			
 
 		} catch (Exception e) {
-			// TODO: handle exception
+			System.out.println(e.getMessage());
 		}
 	}
 
